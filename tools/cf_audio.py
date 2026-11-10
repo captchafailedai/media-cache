@@ -158,6 +158,50 @@ def sfx_bonk(gain=0.45):
     return sweep(260, 110, 0.22, tau=0.12) * gain
 
 
+def sfx_typing(dur=1.6, rate=12, gain=0.35, seed=21):
+    """Keyboard clatter: short clicks at slightly random intervals."""
+    rng = np.random.default_rng(seed)
+    out = np.zeros(int(SR * dur) + SR // 10)
+    t = 0.0
+    while t < dur:
+        k = sfx_click() * rng.uniform(0.5, 1.0)
+        s = int(t * SR)
+        out[s:s + len(k)] += k[: len(out) - s]
+        t += rng.uniform(0.6, 1.4) / rate
+    return norm(out) * gain
+
+
+def sfx_boom(gain=0.9):
+    """Confetti-cannon pop: low thump plus a bright noise burst."""
+    body = sweep(120, 45, 0.45, tau=0.2)
+    burst = highpass(noise(0.35, 13), 900) * env(int(0.35 * SR), 0.001, 0.08)
+    out = np.zeros(len(body))
+    out[:len(burst)] += norm(burst) * 0.6
+    return norm(out + body) * gain
+
+
+def sfx_rise(dur=2.4, gain=0.18):
+    """Tension riser: sine gliding up with a little wobble."""
+    n = int(SR * dur)
+    t = t_axis(n)
+    f = 220 * (4 ** (t / dur)) * (1 + 0.01 * np.sin(2 * np.pi * 6 * t))
+    x = np.sin(2 * np.pi * np.cumsum(f) / SR)
+    return x * np.clip(t / 0.3, 0, 1) * np.clip((dur - t) / 0.05, 0, 1) * gain
+
+
+def sfx_whistle(gain=0.2):
+    """Innocent little whistle: a few sine notes with a touch of vibrato."""
+    notes = ((83, 0.16), (88, 0.16), (86, 0.28), (83, 0.16), (84, 0.5))
+    parts = []
+    for m, d in notes:
+        n = int(SR * d)
+        t = t_axis(n)
+        ph = 2 * np.pi * np.cumsum(midi_hz(m) * (1 + 0.012 * np.sin(2 * np.pi * 5.5 * t))) / SR
+        x = np.sin(ph) + 0.08 * np.sin(2 * ph)
+        parts.append(x * np.clip(t / 0.025, 0, 1) * np.clip((d - t) / 0.05, 0, 1))
+        parts.append(np.zeros(int(SR * 0.03)))
+    return np.concatenate(parts) * gain
+
 def sfx_crickets(dur=1.6, gain=0.12):
     """Awkward-silence crickets: trains of short 4.3 kHz pulses."""
     n = int(SR * dur)

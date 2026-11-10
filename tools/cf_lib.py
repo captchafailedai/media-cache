@@ -323,6 +323,18 @@ def draw_sweat(frame, t, my, t_in, t_out):
     comp(frame, spr, MX + 404 - spr.width / 2, my + 104 + slide - spr.height / 2)
 
 
+def draw_sweat_at(frame, t, mx, my, size, t_in, t_out=None):
+    """Sweat drop for a mascot drawn at (mx, my) with any size."""
+    pw = prog(t, t_in, t_in + 0.2)
+    fade = 1 - prog(t, t_out, t_out + 0.2) if t_out is not None else 1.0
+    if my is None or pw <= 0 or fade <= 0:
+        return
+    k = size / M_SIZE
+    s = max(0.01, ease_out_back(pw)) * k
+    slide = 26 * k * ease_in_out_cubic(prog(t, t_in + 0.2, t_in + 1.5))
+    spr = with_alpha(scaled(SWEAT_SPR, s), fade)
+    comp(frame, spr, mx + 404 * k - spr.width / 2, my + 104 * k + slide - spr.height / 2)
+
 def card(w, h, radius=26, fill=CARD, border=CARD_BORDER, border_w=2):
     S = 2
     img = Image.new("RGBA", (w * S, h * S), (0, 0, 0, 0))
