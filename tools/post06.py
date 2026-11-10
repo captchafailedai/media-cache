@@ -205,7 +205,7 @@ M_X, M_Y, M_S = CX - 223, 1050, 440
 def draw_frame(t):
     fr = BASE.copy()
     p = ease_out_cubic(prog(t, 0.0, 0.3))
-    place_text(fr, HOOK, CX, 270 - 24 * (1 - p), alpha=clamp01(p * 1.5) if t < 0.3 else 1.0)
+    place_text(fr, HOOK, CX, 270 - 24 * (1 - p))  # visible from frame 1, so the default cover isn't blank
     draw_email(fr, t)
     draw_tone(fr, t)
     draw_reply(fr, t)
