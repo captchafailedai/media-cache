@@ -203,7 +203,7 @@ M_X, M_Y, M_S = CX - 223, 1050, 440
 
 
 def draw_frame(t):
-    fr = BASE.copy()
+    fr = canvas()
     p = ease_out_cubic(prog(t, 0.0, 0.3))
     place_text(fr, HOOK, CX, 270 - 24 * (1 - p))  # visible from frame 1, so the default cover isn't blank
     draw_email(fr, t)
@@ -220,7 +220,7 @@ def draw_frame(t):
         place_text(fr, CAP_END, CX, CAP_Y, alpha=pe, scale=0.85 + 0.15 * ease_out_back(pe))
     my = draw_mascot(fr, t, mascot_state(t), hop=(T_SAFE - 0.4, T_SAFE), x=M_X, y=M_Y, size=M_S)
     draw_sweat_at(fr, t, M_X, my, M_S, T_DANGER + 0.15)
-    return fr.convert("RGB")
+    return finish(fr, OLD_LAYOUT_FIT)
 
 
 def soundtrack(path):

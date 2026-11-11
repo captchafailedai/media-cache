@@ -110,7 +110,7 @@ def mascot_state(t):
 
 
 def draw_frame(t):
-    fr = BASE.copy()
+    fr = canvas()
     p = ease_out_cubic(prog(t, 0.0, 0.3))
     place_text(fr, HOOK, CX, 270 - 24 * (1 - p))
     pb = prog(t, 0.15, 0.45)
@@ -120,12 +120,12 @@ def draw_frame(t):
     i = draft_index(t)
     card_bottom = CARD_TOP + card_height(DRAFTS[i][1])
     cap_y = max(card_bottom + 110, 900)
-    a = fade_window(t, 3.65, 4.9)
+    a = fade_window(t, 3.65, 4.8)
     place_text(fr, CAP_ON_IT, CX, cap_y + 16 * (1 - ease_out_cubic(prog(t, 3.65, 3.9))), alpha=a)
     p3 = prog(t, 8.4, 8.65)
     place_text(fr, CAP_END, CX, cap_y, alpha=p3, scale=0.85 + 0.15 * ease_out_back(p3) if p3 > 0 else 0.85)
     draw_mascot(fr, t, mascot_state(t), size=440, x=CX - 223, y=1050)
-    return fr.convert("RGB")
+    return finish(fr, OLD_LAYOUT_FIT)
 
 
 def soundtrack(path):

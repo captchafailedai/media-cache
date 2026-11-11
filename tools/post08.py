@@ -175,17 +175,23 @@ PARTS = make_particles()
 DRAG, V_FALL = 2.2, 270.0
 
 
-def draw_particles(fr, t):
+def draw_particles(fr, t, fit=None):
+    """Confetti, drawn straight onto the final frame (mapped through `fit`) so it can fly
+    past the edges of the shrunken content."""
     k = t - T_POP
     if k < 0:
         return
     d = ImageDraw.Draw(fr)
     f = (1 - math.exp(-DRAG * k)) / DRAG
+    s = fit[0] if fit else 1.0
     for x, y, vx, vy, w, h, r0, vr, ph, c in PARTS:
         px = x + vx * f + 18 * math.sin(2 * math.pi * 0.8 * k + ph) * clamp01(k * 2)
         py = y + V_FALL * k + (vy - V_FALL) * f
+        if fit:
+            px, py = fit_point(px, py, fit)
         if py > H + 40 or px < -40 or px > W + 40:
             continue
+        w, h = w * s, h * s
         a = r0 + vr * k
         ww = w * abs(math.cos(a * 0.7)) + 2
         ca, sa = math.cos(a), math.sin(a)
@@ -226,7 +232,7 @@ def mascot_state(t):
 
 
 def draw_frame(t):
-    fr = BASE.copy()
+    fr = canvas()
     p = ease_out_cubic(prog(t, 0.0, 0.3))
     place_text(fr, HOOK, CX, 270 - 24 * (1 - p))
     pb = prog(t, 0.15, 0.45)
@@ -234,14 +240,13 @@ def draw_frame(t):
         place_center(fr, BUBBLE, CX, 420, alpha=clamp01(pb * 2.5), scale=0.85 + 0.15 * ease_out_back(pb))
     draw_poster(fr, t)
     draw_flash(fr, t)
-    draw_particles(fr, t)
     place_text(fr, CAP_ON_IT, CX, CAP_Y + 16 * (1 - ease_out_cubic(prog(t, 2.0, 2.25))), alpha=fade_window(t, 2.0, 3.1))
     pe = prog(t, T_POP + 0.25, T_POP + 0.5)
     if pe > 0:
         place_text(fr, CAP_END, CX, CAP_Y, alpha=pe, scale=0.85 + 0.15 * ease_out_back(pe))
     my = draw_mascot(fr, t, mascot_state(t), hop=(STEPS[0], STEPS[0] + 0.35), x=M_X, y=M_Y, size=M_S)
     draw_sweat_at(fr, t, M_X, my, M_S, T_WHISTLE + 0.1)
-    return fr.convert("RGB")
+    return finish(fr, OLD_LAYOUT_FIT, under=lambda out: draw_particles(out, t, OLD_LAYOUT_FIT))
 
 
 def soundtrack(path):

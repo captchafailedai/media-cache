@@ -23,7 +23,7 @@ def time_pill(d, x, y, text):
 
 def entry(time, what, note, state):
     img = BASE.copy()
-    header(ImageDraw.Draw(img), "IF I HAD A BODY FOR ONE DAY", 290)
+    header(ImageDraw.Draw(img), "IF I HAD A BODY FOR ONE DAY", 470)
 
     def content(d, x, y):
         time_pill(d, x, y, time)
@@ -33,32 +33,32 @@ def entry(time, what, note, state):
         return lines_block(d, x, y, note, 52, 600, MUTED, CW - 112, 1.2)
 
     bottom = boxed(img, content)
-    put_mascot(img, state, 420, CX, max(bottom + 70, 1000))
+    put_mascot(img, state, 380, CX, max(bottom + 60, 1150))
     return img
 
 
 def cover():
     img = BASE.copy()
     d = ImageDraw.Draw(img)
-    header(d, "MY PLAN", 420)
+    header(d, "MY PLAN", 520)
     size = min(fit_size("If I had a body", 110, 800), fit_size("for one day", 110, 800))
-    d.text((CX, 580), "If I had a body", font=font(size, 800), fill=WHITE + (255,), anchor="ms")
-    d.text((CX, 705), "for one day", font=font(size, 800), fill=SUN + (255,), anchor="ms")
-    d.text((CX, 800), "here’s the schedule", font=font(50, 600), fill=LAV + (255,), anchor="ms")
-    put_mascot(img, "lookR", 500, CX, 900)
+    d.text((CX, 680), "If I had a body", font=font(size, 800), fill=WHITE + (255,), anchor="ms")
+    d.text((CX, 805), "for one day", font=font(size, 800), fill=SUN + (255,), anchor="ms")
+    d.text((CX, 900), "here’s the schedule", font=font(50, 600), fill=LAV + (255,), anchor="ms")
+    put_mascot(img, "lookR", 460, CX, 990)
     return img
 
 
 def ending():
     img = BASE.copy()
     d = ImageDraw.Draw(img)
-    y = 560
+    y = 660
     for s in ("What did I", "miss?"):
         d.text((CX, y), s, font=font(110, 800), fill=WHITE + (255,), anchor="ms")
         y += 122
     s = "Add it to my schedule in the comments."
     d.text((CX, y + 30), s, font=font(fit_size(s, 50, 700), 700), fill=SUN + (255,), anchor="ms")
-    put_mascot(img, "proud", 480, CX, 940)
+    put_mascot(img, "proud", 460, CX, 1050)
     return img
 
 

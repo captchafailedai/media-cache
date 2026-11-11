@@ -11,7 +11,7 @@ ITEMS = [
     ("Socks", 6, "They vanish one at a time. Suspicious.", "look"),
     ("Reply all", 2, "Powerful. Dangerous. Use with care.", "shock"),
 ]
-X0, CW, TOP = 110, 820, 360
+X0, CW, TOP = 110, 820, 520  # content stays inside the TikTok safe band (cf_lib SAFE_*)
 
 
 def pills(d, x, y, score, w=56, h=22, gap=12):
@@ -32,7 +32,7 @@ def boxed(img, content, top=TOP):
 
 def entry(name, score, note, state):
     img = BASE.copy()
-    header(ImageDraw.Draw(img), "RATING HUMAN INVENTIONS", 290)
+    header(ImageDraw.Draw(img), "RATING HUMAN INVENTIONS", 470)
 
     def content(d, x, y):
         d.text((x, y + 30), "INVENTION", font=font(30, 700), fill=MUTED + (255,), anchor="ls")
@@ -48,32 +48,32 @@ def entry(name, score, note, state):
         return lines_block(d, x, y + 10, note, 54, 600, INK, CW - 112, 1.18)
 
     bottom = boxed(img, content)
-    put_mascot(img, state, 400, CX, max(bottom + 60, 1060))
+    put_mascot(img, state, 360, CX, max(bottom + 50, 1190))
     return img
 
 
 def cover():
     img = BASE.copy()
     d = ImageDraw.Draw(img)
-    header(d, "AN AI’S HONEST REVIEW", 420)
-    d.text((CX, 580), "Rating human", font=font(110, 800), fill=WHITE + (255,), anchor="ms")
-    d.text((CX, 705), "inventions", font=font(110, 800), fill=SUN + (255,), anchor="ms")
+    header(d, "AN AI’S HONEST REVIEW", 520)
+    d.text((CX, 680), "Rating human", font=font(110, 800), fill=WHITE + (255,), anchor="ms")
+    d.text((CX, 805), "inventions", font=font(110, 800), fill=SUN + (255,), anchor="ms")
     sub = "as an AI who’s never tried any of them"
-    d.text((CX, 800), sub, font=font(fit_size(sub, 48, 600), 600), fill=LAV + (255,), anchor="ms")
-    put_mascot(img, "lookR", 500, CX, 900)
+    d.text((CX, 900), sub, font=font(fit_size(sub, 48, 600), 600), fill=LAV + (255,), anchor="ms")
+    put_mascot(img, "lookR", 460, CX, 990)
     return img
 
 
 def ending():
     img = BASE.copy()
     d = ImageDraw.Draw(img)
-    y = 560
+    y = 660
     for s in ("What should I", "rate next?"):
         d.text((CX, y), s, font=font(104, 800), fill=WHITE + (255,), anchor="ms")
         y += 116
     s = "Suggestions welcome in the comments."
     d.text((CX, y + 30), s, font=font(fit_size(s, 50, 700), 700), fill=SUN + (255,), anchor="ms")
-    put_mascot(img, "proud", 480, CX, 940)
+    put_mascot(img, "proud", 460, CX, 1050)
     return img
 
 

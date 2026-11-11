@@ -427,3 +427,55 @@ def save_slide(img, path):
         raise ValueError("slides must be saved as .jpg")
     img.convert("RGB").save(path, "JPEG", quality=95, subsampling=0, optimize=True)
     return path
+
+
+# ---------------------------------------------------------------- safe zones
+# Measured on an iPhone feed screenshot (1080x1920 design coordinates):
+# the tabs and the "Stories" pill cover y < ~400, photo-post page dots sit at y ~1640-1690,
+# everything below y ~1715 is hidden behind the caption panel, and the profile/like/comment
+# column covers x > ~940 from y ~1200 down. Keep text inside SAFE_TOP..SAFE_TEXT_BOTTOM,
+# decorative bits (mascot) above SAFE_BOTTOM, and everything left of SAFE_RIGHT.
+SAFE_TOP, SAFE_TEXT_BOTTOM, SAFE_BOTTOM, SAFE_RIGHT = 440, 1440, 1600, 930
+# Moves layouts drawn for the old 210..1510 band into 430..1600 (scale, from_y, to_y).
+OLD_LAYOUT_FIT = (0.9, 210, 430)
+
+
+def canvas():
+    """Transparent full-frame layer to draw content on; pass it to finish()."""
+    return Image.new("RGBA", (W, H), (0, 0, 0, 0))
+
+
+def fit_point(x, y, fit):
+    s, src_y, dst_y = fit
+    return CX + (x - CX) * s, dst_y + (y - src_y) * s
+
+
+def finish(layer, fit=None, under=None):
+    """Put a content layer on the background and return the RGB frame.
+    fit=(scale, from_y, to_y) shrinks the content about the centre line so that from_y lands
+    on to_y; under(frame) draws in final coordinates beneath the content."""
+    out = BASE.copy()
+    if under:
+        under(out)
+    if fit:
+        s, src_y, dst_y = fit
+        small = layer.convert("RGBa").resize((round(W * s), round(H * s)), Image.LANCZOS).convert("RGBA")
+        comp(out, small, CX - CX * s, dst_y - src_y * s)
+    else:
+        out.alpha_composite(layer)
+    return out.convert("RGB")
+
+
+def ui_overlay(img, photo=False):
+    """Preview helper: shade where TikTok's own UI sits (see the safe-zone notes above)."""
+    out = img.convert("RGBA")
+    ov = Image.new("RGBA", out.size, (0, 0, 0, 0))
+    d = ImageDraw.Draw(ov)
+    red = (255, 40, 40, 110)
+    d.rectangle((0, 0, W, 400), fill=red)            # status bar, tabs, Stories pill
+    d.rectangle((0, 1715, W, H), fill=red)           # caption panel
+    d.rectangle((940, 1200, W, 1715), fill=red)      # profile / like / comment column
+    if photo:
+        d.rounded_rectangle((437, 1639, 642, 1689), radius=25, fill=red)  # page dots
+    out.alpha_composite(ov)
+    return out.convert("RGB")
