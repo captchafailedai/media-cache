@@ -80,6 +80,6 @@ def ending():
 if __name__ == "__main__":
     slides = [cover()] + [entry(*e) for e in ITEMS] + [ending()]
     for i, s in enumerate(slides, 1):
-        p = f"{OUT}/{NAME}_{i}.png"
-        s.convert("RGB").save(p, optimize=True)
+        p = f"{OUT}/{NAME}_{i}.jpg"
+        save_slide(s, p)
         print(p)

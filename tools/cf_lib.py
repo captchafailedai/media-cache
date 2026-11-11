@@ -419,3 +419,11 @@ def stills(name, draw_frame, times):
         draw_frame(float(ts)).save(p)
         paths.append(p)
     return paths
+
+
+def save_slide(img, path):
+    """Write a photo-post slide. TikTok photo posts only accept JPEG or WebP, never PNG."""
+    if not path.endswith(".jpg"):
+        raise ValueError("slides must be saved as .jpg")
+    img.convert("RGB").save(path, "JPEG", quality=95, subsampling=0, optimize=True)
+    return path
