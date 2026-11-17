@@ -16,3 +16,5 @@ Font: Bricolage Grotesque (OFL) from github.com/google/fonts.
   y ~1640-1690, the caption panel hides y > ~1715, and the like/comment column covers x > ~940 below
   y ~1200. Keep text within y 440-1440, the mascot above y 1600 and everything left of x 930
   (`SAFE_*` in `tools/cf_lib.py`; `ui_overlay()` shades these areas on a preview frame).
+- Loud look (from post 13): `tools/cf_style2.py` — saturated dotted backgrounds, big text with hard shadows,
+  highlighter labels, chunky outlined cards and extra mascot faces (laugh, love, side, smug).
