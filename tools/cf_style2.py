@@ -224,3 +224,8 @@ def coffee_icon(size=160):
         d.ellipse((x * u, 86 * u, (x + 6) * u, 92 * u), fill=(255, 255, 255, 255))
     d.ellipse((36 * u, 56 * u, 128 * u, 70 * u), fill=(106, 64, 40, 255), outline=INK2 + (255,), width=int(4 * u))
     return img.resize((size, size), Image.LANCZOS)
+
+
+L._FACES["wink"] = (L._CHEEKS
+                    + f'<ellipse cx="240" cy="246" rx="24" ry="34" fill="{L._INK}"/><circle cx="249" cy="232" r="8" fill="#FFFFFF"/>'
+                    + L._stroke("M334 250Q360 266 386 250", 13) + L._SMILE)
