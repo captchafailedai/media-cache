@@ -123,3 +123,104 @@ def label(img, text, cx, baseline, size=30, color=WHITE, wght=800, spacing=3):
 def put_mascot2(img, state, size, cx, top):
     m = mascot_cached(state, size)
     comp(img, m, cx - size / 2, top)
+
+
+# ------------------------------------------------------------------ props for the Black Friday week
+
+def is_dark(c):
+    return 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2] < 70
+
+
+_base_orig = base
+
+
+def base(color):  # noqa: F811 — dark backgrounds get lighter dots instead of darker ones
+    if not is_dark(color):
+        return _base_orig(color)
+    key = ("dark",) + color
+    if key not in _bases:
+        S2 = 2
+        img = Image.new("RGBA", (W * S2, H * S2), color + (255,))
+        d = ImageDraw.Draw(img)
+        dot = shade(color, 0.10)
+        r = 2.6 * S2
+        for y in range(22, H, 44):
+            for x in range(22, W, 44):
+                d.ellipse((x * S2 - r, y * S2 - r, x * S2 + r, y * S2 + r), fill=dot + (255,))
+        _bases[key] = img.resize((W, H), Image.LANCZOS)
+    return _bases[key]
+
+
+def burst(text, r=110, fill=SUN, ink=INK2, angle=-12, points=14, lines=None, size=None):
+    """Starburst sticker with a hard shadow; returns an RGBA sprite."""
+    import math as _m
+    S2 = 3
+    R = r * S2
+    sz = int(R * 2 + 30 * S2)
+    img = Image.new("RGBA", (sz, sz), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    c = sz / 2
+
+    def star(dx, dy):
+        pts = []
+        for k in range(points * 2):
+            rr = R if k % 2 == 0 else R * 0.8
+            a = _m.pi * k / points
+            pts.append((c + dx + rr * _m.cos(a), c + dy + rr * _m.sin(a)))
+        return pts
+    d.polygon(star(8 * S2, 10 * S2), fill=INK2 + (255,))
+    d.polygon(star(0, 0), fill=fill + (255,), outline=INK2 + (255,))
+    d.line(star(0, 0) + [star(0, 0)[0]], fill=INK2 + (255,), width=5 * S2)
+    rows = lines or [text]
+    fs = size or min(fit_size(t, int(r * 0.62), 800, r * 1.35) for t in rows)
+    lh = fs * 1.0
+    y0 = c - (len(rows) - 1) * lh * S2 / 2
+    for k, t in enumerate(rows):
+        d.text((c, y0 + k * lh * S2), t, font=font(fs * S2, 800), fill=ink + (255,), anchor="mm")
+    img = img.rotate(angle, resample=Image.BICUBIC)
+    return img.resize((sz // S2, sz // S2), Image.LANCZOS)
+
+
+def price_tag(text, w=300, h=130, fill=SUN, ink=INK2, angle=-8):
+    """Shop price tag (pointed left end, punched hole) with a hard shadow; returns an RGBA sprite."""
+    S2 = 3
+    W2, H2 = (w + 40) * S2, (h + 40) * S2
+    img = Image.new("RGBA", (W2, H2), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+
+    def shape(dx, dy):
+        x0, y0, x1, y1 = (10 + dx) * S2, (10 + dy) * S2, (10 + w + dx) * S2, (10 + h + dy) * S2
+        n = h * 0.45 * S2
+        return [(x0, (y0 + y1) / 2), (x0 + n, y0), (x1, y0), (x1, y1), (x0 + n, y1)]
+    d.polygon(shape(8, 10), fill=INK2 + (255,))
+    pts = shape(0, 0)
+    d.polygon(pts, fill=fill + (255,))
+    d.line(pts + [pts[0]], fill=INK2 + (255,), width=5 * S2, joint="curve")
+    hx, hy = (10 + h * 0.3) * S2, (10 + h / 2) * S2
+    d.ellipse((hx - 11 * S2, hy - 11 * S2, hx + 11 * S2, hy + 11 * S2), fill=(0, 0, 0, 0), outline=INK2 + (255,), width=4 * S2)
+    fs = fit_size(text, int(h * 0.62), 800, w - h * 0.55 - 24)
+    d.text(((10 + h * 0.45 + (w - h * 0.45) / 2) * S2, (10 + h / 2) * S2), text, font=font(fs * S2, 800), fill=ink + (255,), anchor="mm")
+    img = img.rotate(angle, resample=Image.BICUBIC, expand=True)
+    return img.resize((img.width // S2, img.height // S2), Image.LANCZOS)
+
+
+def coffee_icon(size=160):
+    """Small coffee cup on a saucer with steam (drawn, no photos)."""
+    S2 = 4
+    u = size * S2 / 160
+    img = Image.new("RGBA", (int(160 * u), int(160 * u)), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    import math as _m
+    for k, x in enumerate((64, 84, 104)):  # steam: smooth wiggles
+        pts = [(x * u + 6 * u * _m.sin(j / 3 + k), (50 - j * 1.8) * u) for j in range(24)]
+        d.line(pts, fill=(255, 255, 255, 235), width=int(5 * u), joint="curve")
+    d.ellipse((14 * u, 120 * u, 150 * u, 150 * u), fill=INK2 + (255,))
+    d.ellipse((14 * u, 114 * u, 150 * u, 144 * u), fill=(244, 244, 250, 255), outline=INK2 + (255,), width=int(4 * u))
+    cup = [(34 * u, 62 * u), (130 * u, 62 * u), (118 * u, 128 * u), (46 * u, 128 * u)]
+    d.polygon(cup, fill=(255, 255, 255, 255))
+    d.line(cup + [cup[0]], fill=INK2 + (255,), width=int(5 * u), joint="curve")
+    d.rectangle((42 * u, 82 * u, 124 * u, 96 * u), fill=(214, 48, 64, 255))
+    for x in range(50, 120, 16):
+        d.ellipse((x * u, 86 * u, (x + 6) * u, 92 * u), fill=(255, 255, 255, 255))
+    d.ellipse((36 * u, 56 * u, 128 * u, 70 * u), fill=(106, 64, 40, 255), outline=INK2 + (255,), width=int(4 * u))
+    return img.resize((size, size), Image.LANCZOS)
